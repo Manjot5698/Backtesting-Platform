@@ -8,7 +8,7 @@ class RSIStrategy(BaseStrategy):
     def generate_signals(self, data: pd.DataFrame):
         df = data.copy()
 
-        delta =df.close.diff()
+        delta =df["Close"].diff()
         gain = delta.clip(lower = 0)
         loss  = -delta.clip(upper =0)
         avg_gain = gain.rolling(self.period).mean()

@@ -14,7 +14,7 @@ else:
     data = provider.get_price_data(ticker)
     DataLoader.save_data(ticker, data)
 
-strategy = STRATEGY_REGISTRY["moving_average"]()
+strategy = STRATEGY_REGISTRY["rsi"]()
 data = strategy.generate_signals(data)
 engine = BacktestEngine(data,quantity =10)
 result = engine.run()
