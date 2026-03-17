@@ -1,5 +1,5 @@
-from engine.trade import Portfolio
-from engine.data import Trade
+from engine.portfolio import Portfolio
+from engine.trade import Trade
 
 class BacktestEngine:
 
@@ -33,7 +33,7 @@ class BacktestEngine:
                 )
             self.portfolio.update_value(price)
 
-            portfolio_values.append(self.portfolio.value)
+            portfolio_values.append(self.portfolio.portfolio_value)
         self.data["portfolio_value"] =portfolio_values
 
         return self.data
