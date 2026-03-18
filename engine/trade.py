@@ -1,16 +1,28 @@
 class Trade:
 
-    def __init__(self,date,action,price,quantity):
-        self.date = date
-        self.action = action
-        self.price = price
+    def __init__(self, entry_date, entry_price, quantity):
+
+        self.entry_date = entry_date
+        self.entry_price = entry_price
+        self.exit_date = None
+        self.exit_price = None
         self.quantity = quantity
+        self.pnl = 0
+
+    def close(self, exit_date, exit_price):
+
+        self.exit_date = exit_date
+        self.exit_price = exit_price
+
+        self.pnl = (exit_price - self.entry_price) * self.quantity
 
     def to_dict(self):
+
         return {
-            "date":self.date,
-            "action":self.action,
-            "price":self.price,
-            "quantity":self.quantity
+            "entry_date": self.entry_date,
+            "entry_price": self.entry_price,
+            "exit_date": self.exit_date,
+            "exit_price": self.exit_price,
+            "quantity": self.quantity,
+            "pnl": self.pnl
         }
-    

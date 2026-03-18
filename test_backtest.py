@@ -19,10 +19,15 @@ data = strategy.generate_signals(data)
 engine = BacktestEngine(data,quantity =10)
 result = engine.run()
 print(result.tail())
-# --- ADD METRICS HERE ---
+
+print("\nTrades:")
+for trade in engine.trades[:5]:
+    print(trade.to_dict())
+
 print("\nPerformance Metrics")
 print("Total Return:", PerformanceMetrics.total_return(result))
 print("Max Drawdown:", PerformanceMetrics.max_drawdown(result))
 print("Sharpe Ratio:", PerformanceMetrics.sharpe_ratio(result))
 print("Initial Value:", result["portfolio_value"].iloc[0])
 print("Final Value:", result["portfolio_value"].iloc[-1])
+print("Win Rate:", PerformanceMetrics.win_rate(engine.trades))

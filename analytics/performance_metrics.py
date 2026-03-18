@@ -39,4 +39,9 @@ class PerformanceMetrics:
     # TEMP: keep win_rate disabled until trade PnL exists
     @staticmethod
     def win_rate(trades):
-        return "Not implemented yet"
+        if len(trades) ==0:
+            return 0
+        
+        wins =sum(1 for t in trades if t.pnl>0)
+        
+        return wins/len(trades)
