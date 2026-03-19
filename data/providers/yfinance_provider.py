@@ -11,7 +11,7 @@ class YFinanceProvider(BaseDataProvider):
             ticker,
             period=period,
             interval=interval,
-            auto_adjust=False,
+            auto_adjust=True,
             progress=False
         )
 
@@ -24,7 +24,7 @@ class YFinanceProvider(BaseDataProvider):
 
         df.columns.name = None
 
-        df.dropna(inplace=True)
+        df = df.dropna(subset=["Close"])
 
         # convert index to column
         df.reset_index(inplace=True)
