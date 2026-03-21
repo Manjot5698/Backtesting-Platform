@@ -12,9 +12,9 @@ if file_path.exists():
     data = DataLoader.load_data(ticker)
 else:
     data = provider.get_price_data(ticker)
-    DataLoader.save_data(ticker, data)
+    DataLoader.save_data(data, ticker)
 
-strategy = STRATEGY_REGISTRY["rsi"]()
+strategy = STRATEGY_REGISTRY["bollinger"]()
 data = strategy.generate_signals(data)
 engine = BacktestEngine(data,quantity =10)
 result = engine.run()

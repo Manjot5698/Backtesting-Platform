@@ -5,17 +5,18 @@ class Portfolio:
         self.position = 0
         self.portfolio_value = initial_capital
 
-    def buy(self,price,quantity):
-        cost = price*quantity
-        if self.cash >=cost:
-            self.cash -=cost
-            self.position +=quantity
-    
-    def sell(self,price,quantity):
+    def buy(self, price, quantity, cost_pct=0.001):
+        cost = price * quantity * (1 + cost_pct)
+        if self.cash >= cost:
+            self.cash -= cost
+            self.position += quantity
 
-        if self.position >=quantity:
-            self.cash += price*quantity
-            self.position -=quantity
+
+    def sell(self, price, quantity, cost_pct=0.001):
+        proceeds = price * quantity * (1 - cost_pct)
+        if self.position >= quantity:
+            self.cash += proceeds
+            self.position -= quantity
 
     def update_value(self,price):
 

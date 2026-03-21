@@ -24,7 +24,11 @@ class FeatureEngineer:
         df["RSI"] = 100-(100/(1+rs))
 
         #Target
-        df["target"] = (df["Close"].shift(-1)> df["Close"]).astype(int)
+        future_return = df["Close"].shift(-5) / df["Close"] - 1
+
+        df["target"] = 0
+        df.loc[future_return > 0.01, "target"] = 1
+        df.loc[future_return < -0.01, "target"] = -1
         df.dropna(inplace = True)
 
         return df

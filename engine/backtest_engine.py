@@ -4,14 +4,16 @@ from engine.trade import Trade
 
 class BacktestEngine:
 
-    def __init__(self, data, quantity=10, initial_capital=100000):
+    def __init__(self, data, quantity=10, initial_capital=100000, cost_pct=0.001):
 
-        self.data = data
+        self.data = data.copy()
         self.quantity = quantity
         self.portfolio = Portfolio(initial_capital)
 
         self.trades = []
         self.open_trades = []
+
+        self.cost_pct = cost_pct
 
     def run(self):
 
@@ -19,6 +21,7 @@ class BacktestEngine:
 
         # Remove lookahead bias
         self.data["signal"] = self.data["signal"].shift(1)
+        self.data = self.data.dropna(subset=["signal"]).reset_index(drop=True)
 
         for _, row in self.data.iterrows():
 
@@ -26,29 +29,37 @@ class BacktestEngine:
             price = row["Close"]
             signal = row["signal"]
 
-            # BUY
-            if signal == 1:
+            # =======================
+            # BUY (only if NOT holding)
+            # =======================
+            if signal == 1 and self.portfolio.position == 0:
 
-                if self.portfolio.cash >= price * self.quantity:
+                cost = price * self.quantity * (1 + self.cost_pct)
 
-                    self.portfolio.buy(price, self.quantity)
+                if self.portfolio.cash >= cost:
+
+                    self.portfolio.buy(price, self.quantity, cost_pct=self.cost_pct)
 
                     trade = Trade(date, price, self.quantity)
                     self.open_trades.append(trade)
 
-            # SELL
-            elif signal == -1:
+            # =======================
+            # SELL (only if holding)
+            # =======================
+            elif signal == -1 and self.portfolio.position > 0:
 
-                if self.open_trades:
+                if self.open_trades:  # safety check
 
                     trade = self.open_trades.pop(0)  # FIFO
 
-                    self.portfolio.sell(price, trade.quantity)
+                    self.portfolio.sell(price, trade.quantity, cost_pct=self.cost_pct)
 
                     trade.close(date, price)
-
                     self.trades.append(trade)
 
+            # =======================
+            # UPDATE PORTFOLIO VALUE
+            # =======================
             self.portfolio.update_value(price)
             portfolio_values.append(self.portfolio.portfolio_value)
 

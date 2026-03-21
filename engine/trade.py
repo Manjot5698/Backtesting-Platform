@@ -16,6 +16,9 @@ class Trade:
 
         self.pnl = (exit_price - self.entry_price) * self.quantity
 
+        self.return_pct = (exit_price / self.entry_price) - 1
+        self.holding_days = (exit_date - self.entry_date).days
+
     def to_dict(self):
 
         return {
@@ -24,5 +27,7 @@ class Trade:
             "exit_date": self.exit_date,
             "exit_price": self.exit_price,
             "quantity": self.quantity,
-            "pnl": self.pnl
+            "pnl": self.pnl,
+            "return_pct": self.return_pct,
+            "holding_days": self.holding_days
         }

@@ -19,36 +19,70 @@ class MLPipeline:
 
     def run(self, df: pd.DataFrame):
 
-        df = FeatureEngineer.create_features(df)
+        df = df.copy()
 
-        # Time-based split
+        # =========================
+        # TIME-BASED SPLIT (RAW DATA)
+        # =========================
         split = int(len(df) * 0.7)
 
-        train = df.iloc[:split]
-        test  = df.iloc[split:]
+        train_raw = df.iloc[:split]
+        test_raw  = df.iloc[split:]
 
+        # =========================
+        # FEATURE ENGINEERING (SEPARATE)
+        # =========================
+        train = FeatureEngineer.create_features(train_raw)
+        test  = FeatureEngineer.create_features(test_raw)
+
+        # =========================
+        # TRAIN DATA
+        # =========================
         X_train = train[self.feature_cols]
         y_train = train["target"]
 
+        # =========================
+        # TEST DATA
+        # =========================
         X_test = test[self.feature_cols]
         y_test = test["target"]
 
-        # Train
+        # =========================
+        # TRAIN MODEL
+        # =========================
         self.model.train(X_train, y_train)
 
-        # Predict
-        predictions = self.model.predict(X_test)
+        # =========================
+        # PREDICT PROBABILITIES
+        # =========================
+        probs = self.model.model.predict_proba(X_test)
 
-        # Metrics
-        print("Accuracy:", accuracy_score(y_test, predictions))
-        print("Precision:", precision_score(y_test, predictions))
-        print("Recall:", recall_score(y_test, predictions))
+        # Handle multi-class (-1, 0, 1)
+        class_labels = self.model.model.classes_
 
-        # Convert to signals
+        prob_df = pd.DataFrame(probs, columns=class_labels, index=test.index)
+
+        # =========================
+        # GENERATE SIGNALS (WITH HOLD ZONE)
+        # =========================
         test = test.copy()
-        test["signal"] = predictions  # no pd.Series
+        test["signal"] = 0  # default HOLD
 
-        # convert to trading signal
-        test["signal"] = test["signal"].map({1: 1, 0: -1})
+        # Buy when strong positive probability
+        if 1 in prob_df.columns:
+            test.loc[prob_df[1] > 0.55, "signal"] = 1
+
+        # Sell when strong negative probability
+        if -1 in prob_df.columns:
+            test.loc[prob_df[-1] > 0.55, "signal"] = -1
+
+        # =========================
+        # METRICS (ON RAW PREDICTIONS)
+        # =========================
+        raw_predictions = self.model.model.predict(X_test)
+
+        print("Accuracy:", accuracy_score(y_test, raw_predictions))
+        print("Precision:", precision_score(y_test, raw_predictions, average="macro", zero_division=0))
+        print("Recall:", recall_score(y_test, raw_predictions, average="macro", zero_division=0))
 
         return test.reset_index(drop=True)
