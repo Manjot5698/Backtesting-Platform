@@ -14,7 +14,7 @@ from analytics.performance_metrics import PerformanceMetrics
 # =========================
 TICKER = "ICICIBANK.NS"
 
-MODE = "ml"  
+MODE = "moving_average"  
 # options:
 # "ml"
 # "moving_average"
