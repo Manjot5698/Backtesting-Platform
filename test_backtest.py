@@ -1,18 +1,18 @@
 from pathlib import Path
 from analytics.performance_metrics import PerformanceMetrics
-from data.providers.yfinance_provider import YFinanceProvider
+from data.providers.fyers_provider import FyersProvider
 from data.storage.data_loader import DataLoader
 from strategies.strategy_registry import STRATEGY_REGISTRY
 from engine.backtest_engine import BacktestEngine
 
-ticker ="ICICIBANK.NS"
-provider = YFinanceProvider()
-file_path = Path(f"data/raw/{ticker}.csv")
+ticker ="Wipro"
+provider = FyersProvider()
+file_path = Path(f"data/raw/fyers_{ticker}.csv")
 if file_path.exists():
-    data = DataLoader.load_data(ticker)
+    data = DataLoader.load_data(f"fyers_{ticker}")
 else:
-    data = provider.get_price_data(ticker)
-    DataLoader.save_data(data, ticker)
+    data = provider.get_price_data(f"NSE:{ticker}-EQ")
+    DataLoader.save_data(data, f"fyers_{ticker}")
 
 strategy = STRATEGY_REGISTRY["bollinger"]()
 data = strategy.generate_signals(data)

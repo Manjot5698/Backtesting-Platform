@@ -1,7 +1,6 @@
 from pathlib import Path
 import pandas as pd
 
-from data.providers.yfinance_provider import YFinanceProvider
 from data.providers.fyers_provider import FyersProvider
 from data.storage.data_loader import DataLoader
 from strategies.strategy_registry import STRATEGY_REGISTRY
@@ -13,7 +12,7 @@ from analytics.performance_metrics import PerformanceMetrics
 # =========================
 # CONFIG
 # =========================
-PROVIDER = "fyers"   # "yfinance" or "fyers"
+PROVIDER = "fyers"
 
 TICKER = "ICICIBANK"  # base ticker (no suffix)
 
@@ -28,30 +27,22 @@ MODE = "moving_average"
 # =========================
 # PROVIDER SETUP
 # =========================
-if PROVIDER == "yfinance":
-    provider = YFinanceProvider()
-    ticker_formatted = f"{TICKER}.NS"
-
-elif PROVIDER == "fyers":
-    provider = FyersProvider()
-    ticker_formatted = f"NSE:{TICKER}-EQ"
-
-else:
-    raise ValueError("Invalid provider selected")
+provider = FyersProvider()
+ticker_formatted = f"NSE:{TICKER}-EQ"
 
 
 # =========================
 # LOAD DATA
 # =========================
-file_path = Path(f"data/raw/{PROVIDER}_{TICKER}.csv")
+file_path = Path(f"data/raw/fyers_{TICKER}.csv")
 
 if file_path.exists():
-    print(f"{TICKER} → loaded from disk ({PROVIDER})")
-    df = DataLoader.load_data(f"{PROVIDER}_{TICKER}")
+    print(f"{TICKER} → loaded from disk (fyers)")
+    df = DataLoader.load_data(f"fyers_{TICKER}")
 else:
-    print(f"{TICKER} → downloading from {PROVIDER}")
+    print(f"{TICKER} → downloading from fyers")
     df = provider.get_price_data(ticker_formatted)
-    DataLoader.save_data(df, f"{PROVIDER}_{TICKER}")
+    DataLoader.save_data(df, f"fyers_{TICKER}")
 
 
 # =========================
