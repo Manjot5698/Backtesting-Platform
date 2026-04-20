@@ -2,6 +2,7 @@ from pathlib import Path
 import pandas as pd
 
 from data.providers.yfinance_provider import YFinanceProvider
+from data.providers.fyers_provider import FyersProvider
 from data.storage.data_loader import DataLoader
 from strategies.strategy_registry import STRATEGY_REGISTRY
 from engine.backtest_engine import BacktestEngine
@@ -12,9 +13,11 @@ from analytics.performance_metrics import PerformanceMetrics
 # =========================
 # CONFIG
 # =========================
-TICKER = "ICICIBANK.NS"
+PROVIDER = "fyers"   # "yfinance" or "fyers"
 
-MODE = "moving_average"  
+TICKER = "ICICIBANK"  # base ticker (no suffix)
+
+MODE = "moving_average"
 # options:
 # "ml"
 # "moving_average"
@@ -23,24 +26,38 @@ MODE = "moving_average"
 
 
 # =========================
+# PROVIDER SETUP
+# =========================
+if PROVIDER == "yfinance":
+    provider = YFinanceProvider()
+    ticker_formatted = f"{TICKER}.NS"
+
+elif PROVIDER == "fyers":
+    provider = FyersProvider()
+    ticker_formatted = f"NSE:{TICKER}-EQ"
+
+else:
+    raise ValueError("Invalid provider selected")
+
+
+# =========================
 # LOAD DATA
 # =========================
-provider = YFinanceProvider()
-file_path = Path(f"data/raw/{TICKER}.csv")
+file_path = Path(f"data/raw/{PROVIDER}_{TICKER}.csv")
 
 if file_path.exists():
-    print(f"{TICKER} → loaded from disk")
-    df = DataLoader.load_data(TICKER)
+    print(f"{TICKER} → loaded from disk ({PROVIDER})")
+    df = DataLoader.load_data(f"{PROVIDER}_{TICKER}")
 else:
-    print(f"{TICKER} → downloading from yfinance")
-    df = provider.get_price_data(TICKER)
-    DataLoader.save_data(df, TICKER)
+    print(f"{TICKER} → downloading from {PROVIDER}")
+    df = provider.get_price_data(ticker_formatted)
+    DataLoader.save_data(df, f"{PROVIDER}_{TICKER}")
 
 
 # =========================
 # GENERATE SIGNALS
 # =========================
-if MODE == "ml":
+if MODE == "bollinger":
 
     pipeline = MLPipeline()
     data = pipeline.run(df)
@@ -69,7 +86,6 @@ print(result.tail())
 print("\nTrades:")
 for trade in engine.trades[:5]:
     print(trade.to_dict())
-
 
 print("\nPerformance Metrics")
 print("Total Return:", PerformanceMetrics.total_return(result))

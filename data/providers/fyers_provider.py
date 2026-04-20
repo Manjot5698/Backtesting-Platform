@@ -5,18 +5,21 @@ from datetime import datetime, timedelta
 from fyers_apiv3 import fyersModel
 from .base_provider import BaseDataProvider
 
-load_dotenv()
-
-client_id = os.getenv("FYERS_CLIENT_ID")
-secret_key = os.getenv("FYERS_SECRET_KEY")
-access_token = os.getenv("FYERS_ACCESS_TOKEN")
 
 class FyersProvider(BaseDataProvider):
 
-    def __init__(self, client_id: str, access_token: str):
+    def __init__(self):
+        load_dotenv()
+
+        self.client_id = os.getenv("FYERS_CLIENT_ID")
+        self.access_token = os.getenv("FYERS_ACCESS_TOKEN")
+
+        if not self.client_id or not self.access_token:
+            raise ValueError("FYERS credentials missing in .env")
+
         self.fyers = fyersModel.FyersModel(
-            client_id=client_id,
-            token=access_token,
+            client_id=self.client_id,
+            token=self.access_token,
             is_async=False,
             log_path=""
         )
@@ -77,7 +80,6 @@ class FyersProvider(BaseDataProvider):
             columns=["timestamp", "Open", "High", "Low", "Close", "Volume"]
         )
 
-        # convert timestamp
         df["Date"] = pd.to_datetime(df["timestamp"], unit="s")
 
         df = df[["Date", "Open", "High", "Low", "Close", "Volume"]]
