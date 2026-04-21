@@ -19,31 +19,25 @@ class MovingAverageStrategy(BaseStrategy):
         df["SMA_long"] = df["Close"].rolling(self.long_window).mean()
 
         # =========================
-        # RAW SIGNALS (CROSSOVER)
+        # SIGNALS
         # =========================
         df["signal"] = 0
 
-        # BUY when short crosses above long
         df.loc[
             (df["SMA_short"] > df["SMA_long"]) &
             (df["SMA_short"].shift(1) <= df["SMA_long"].shift(1)),
             "signal"
         ] = 1
 
-        # SELL when short crosses below long
         df.loc[
             (df["SMA_short"] < df["SMA_long"]) &
             (df["SMA_short"].shift(1) >= df["SMA_long"].shift(1)),
             "signal"
         ] = -1
 
-        # =========================
-        # PERSIST POSITION (FIXED)
-        # =========================
+        # 🔥 Fill signals properly
         df["signal"] = df["signal"].replace(0, pd.NA).ffill()
         df["signal"] = df["signal"].fillna(0)
-
-        # Optional: keep signals clean integers
-        df["signal"] = df["signal"].astype(int)
+        df["signal"] = df["signal"].infer_objects(copy=False).astype(int)
 
         return df

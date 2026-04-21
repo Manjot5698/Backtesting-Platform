@@ -12,7 +12,7 @@ from analytics.performance_metrics import PerformanceMetrics
 # =========================
 # CONFIG
 # =========================
-TICKER = "ICICIBANK.NS"
+TICKER = "AAPL.NS"
 
 MODE = "ml"  
 # options:

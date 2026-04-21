@@ -4,9 +4,11 @@ from engine.trade import Trade
 
 class BacktestEngine:
 
-    def __init__(self, data, quantity=10, initial_capital=100000, cost_pct=0.001):
+    def __init__(self, data, strategy, quantity=10, initial_capital=100000, cost_pct=0.001):
 
         self.data = data.copy()
+        self.strategy = strategy   # 🔥 ADD THIS
+
         self.quantity = quantity
         self.portfolio = Portfolio(initial_capital)
 
@@ -17,11 +19,21 @@ class BacktestEngine:
 
     def run(self):
 
-        portfolio_values = []
+        # =========================
+        # 🔥 APPLY STRATEGY FIRST
+        # =========================
+        self.data = self.strategy.generate_signals(self.data)
 
-        # Remove lookahead bias
+        if "signal" not in self.data.columns:
+            raise ValueError("❌ Strategy did not generate 'signal' column")
+
+        # =========================
+        # REMOVE LOOKAHEAD BIAS
+        # =========================
         self.data["signal"] = self.data["signal"].shift(1)
         self.data = self.data.dropna(subset=["signal"]).reset_index(drop=True)
+
+        portfolio_values = []
 
         for _, row in self.data.iterrows():
 
@@ -30,7 +42,7 @@ class BacktestEngine:
             signal = row["signal"]
 
             # =======================
-            # BUY (only if NOT holding)
+            # BUY
             # =======================
             if signal == 1 and self.portfolio.position == 0:
 
@@ -44,13 +56,13 @@ class BacktestEngine:
                     self.open_trades.append(trade)
 
             # =======================
-            # SELL (only if holding)
+            # SELL
             # =======================
             elif signal == -1 and self.portfolio.position > 0:
 
-                if self.open_trades:  # safety check
+                if self.open_trades:
 
-                    trade = self.open_trades.pop(0)  # FIFO
+                    trade = self.open_trades.pop(0)
 
                     self.portfolio.sell(price, trade.quantity, cost_pct=self.cost_pct)
 
@@ -58,11 +70,18 @@ class BacktestEngine:
                     self.trades.append(trade)
 
             # =======================
-            # UPDATE PORTFOLIO VALUE
+            # UPDATE VALUE
             # =======================
             self.portfolio.update_value(price)
             portfolio_values.append(self.portfolio.portfolio_value)
 
         self.data["portfolio_value"] = portfolio_values
 
-        return self.data
+        # =========================
+        # 🔥 RETURN CLEAN RESULT
+        # =========================
+        return type("Result", (), {
+            "total_return": f"{round((self.portfolio.portfolio_value - 100000)/100000*100, 2)}%",
+            "final_balance": round(self.portfolio.portfolio_value, 2),
+            "trades": [t.__dict__ for t in self.trades]  # 🔥 IMPORTANT for API
+        })
