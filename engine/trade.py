@@ -31,3 +31,8 @@ class Trade:
             "return_pct": self.return_pct,
             "holding_days": self.holding_days
         }
+
+    @property
+    def date(self):
+        """Return entry date for convenience"""
+        return self.entry_date

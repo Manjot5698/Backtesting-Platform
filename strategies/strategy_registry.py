@@ -10,6 +10,6 @@ STRATEGY_REGISTRY = {
 
 def get_strategy(name: str):
     if name not in STRATEGY_REGISTRY:
-        raise ValueError(f"❌ Strategy '{name}' not found")
+        raise ValueError(f"Strategy '{name}' not found")
 
     return STRATEGY_REGISTRY[name]

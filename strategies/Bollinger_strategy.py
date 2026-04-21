@@ -31,10 +31,8 @@ class BollingerStrategy(BaseStrategy):
         # =========================
         # PERSIST POSITION (FIXED)
         # =========================
+        df["signal"] = df["signal"].astype('Int64')  # Use nullable integer
         df["signal"] = df["signal"].replace(0, pd.NA).ffill()
-        df["signal"] = df["signal"].fillna(0)
-
-        # Optional: clean integers
-        df["signal"] = df["signal"].astype(int)
+        df["signal"] = df["signal"].fillna(0).astype(int)
 
         return df

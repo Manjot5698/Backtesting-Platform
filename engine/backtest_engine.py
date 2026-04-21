@@ -7,7 +7,7 @@ class BacktestEngine:
     def __init__(self, data, strategy, quantity=10, initial_capital=100000, cost_pct=0.001):
 
         self.data = data.copy()
-        self.strategy = strategy   # 🔥 ADD THIS
+        self.strategy = strategy
 
         self.quantity = quantity
         self.portfolio = Portfolio(initial_capital)
@@ -19,13 +19,12 @@ class BacktestEngine:
 
     def run(self):
 
-        # =========================
-        # 🔥 APPLY STRATEGY FIRST
+        # APPLY STRATEGY FIRST
         # =========================
         self.data = self.strategy.generate_signals(self.data)
 
         if "signal" not in self.data.columns:
-            raise ValueError("❌ Strategy did not generate 'signal' column")
+            raise ValueError("Strategy did not generate 'signal' column")
 
         # =========================
         # REMOVE LOOKAHEAD BIAS
@@ -77,11 +76,6 @@ class BacktestEngine:
 
         self.data["portfolio_value"] = portfolio_values
 
+        # RETURN DATA WITH PORTFOLIO VALUES
         # =========================
-        # 🔥 RETURN CLEAN RESULT
-        # =========================
-        return type("Result", (), {
-            "total_return": f"{round((self.portfolio.portfolio_value - 100000)/100000*100, 2)}%",
-            "final_balance": round(self.portfolio.portfolio_value, 2),
-            "trades": [t.__dict__ for t in self.trades]  # 🔥 IMPORTANT for API
-        })
+        return self.data

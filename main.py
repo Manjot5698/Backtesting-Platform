@@ -1,22 +1,19 @@
 from pathlib import Path
-import pandas as pd
 
-from data.providers.yfinance_provider import YFinanceProvider
+from data.providers.fyers_provider import FyersProvider
 from data.storage.data_loader import DataLoader
 from strategies.strategy_registry import STRATEGY_REGISTRY
 from engine.backtest_engine import BacktestEngine
-from ml.pipeline import MLPipeline
 from analytics.performance_metrics import PerformanceMetrics
 
 
 # =========================
 # CONFIG
 # =========================
-TICKER = "AAPL.NS"
+TICKER = "RELIANCE"
 
-MODE = "ml"  
+MODE = "moving_average"
 # options:
-# "ml"
 # "moving_average"
 # "rsi"
 # "bollinger"
@@ -25,38 +22,33 @@ MODE = "ml"
 # =========================
 # LOAD DATA
 # =========================
-provider = YFinanceProvider()
+provider = FyersProvider()
 file_path = Path(f"data/raw/{TICKER}.csv")
 
 if file_path.exists():
-    print(f"{TICKER} → loaded from disk")
+    print(f"{TICKER} - loaded from disk")
     df = DataLoader.load_data(TICKER)
 else:
-    print(f"{TICKER} → downloading from yfinance")
+    print(f"{TICKER} - fetching from FYERS")
     df = provider.get_price_data(TICKER)
+
+    if df.empty:
+        raise ValueError(f"No data returned for {TICKER}")
+
     DataLoader.save_data(df, TICKER)
 
 
 # =========================
-# GENERATE SIGNALS
+# STRATEGY SELECTION
 # =========================
-if MODE == "ml":
-
-    pipeline = MLPipeline()
-    data = pipeline.run(df)
-
-else:
-
-    strategy_class = STRATEGY_REGISTRY[MODE]
-    strategy = strategy_class()
-
-    data = strategy.generate_signals(df)
+strategy_class = STRATEGY_REGISTRY[MODE]
+strategy = strategy_class()
 
 
 # =========================
 # BACKTEST
 # =========================
-engine = BacktestEngine(data, quantity=10)
+engine = BacktestEngine(df, strategy=strategy, quantity=10)
 result = engine.run()
 
 
@@ -69,7 +61,6 @@ print(result.tail())
 print("\nTrades:")
 for trade in engine.trades[:5]:
     print(trade.to_dict())
-
 
 print("\nPerformance Metrics")
 print("Total Return:", PerformanceMetrics.total_return(result))

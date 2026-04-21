@@ -1,6 +1,7 @@
 class Portfolio:
 
     def __init__(self,initial_capital):
+        self.initial_capital = initial_capital
         self.cash = initial_capital
         self.position = 0
         self.portfolio_value = initial_capital

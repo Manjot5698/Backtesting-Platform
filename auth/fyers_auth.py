@@ -35,7 +35,7 @@ def generate_auth_url():
     auth_url = session.generate_authcode()
 
     print("\n" + "="*60)
-    print("🔗 OPEN THIS URL IN BROWSER")
+    print("OPEN THIS URL IN BROWSER")
     print("="*60)
     print(auth_url)
     print("="*60)
@@ -58,27 +58,27 @@ def generate_token(auth_code: str):
     response = session.generate_token()
 
     if response.get("s") != "ok":
-        raise Exception(f"❌ Token generation failed: {response}")
+        raise Exception(f"Token generation failed: {response}")
 
     access_token = response["access_token"]
     refresh_token = response["refresh_token"]
 
     # PRINT ACCESS TOKEN CLEARLY
     print("\n" + "="*60)
-    print("🎯 ACCESS TOKEN (COPY THIS)")
+    print("ACCESS TOKEN (COPY THIS)")
     print("="*60)
     print(access_token)
     print("="*60)
 
     # PRINT REFRESH TOKEN
-    print("\n🔄 REFRESH TOKEN:\n")
+    print("\nREFRESH TOKEN:\n")
     print(refresh_token)
     print("="*60 + "\n")
 
     # COPY TO CLIPBOARD (if available)
     if CLIPBOARD_AVAILABLE:
         pyperclip.copy(access_token)
-        print("📋 Access token copied to clipboard!")
+        print("Access token copied to clipboard!")
 
     return access_token, refresh_token
 
@@ -90,7 +90,7 @@ def save_token_to_env(access_token: str):
     env_path = ".env"
 
     if not os.path.exists(env_path):
-        print("⚠️ .env file not found")
+        print(".env file not found")
         return
 
     lines = []
@@ -110,7 +110,7 @@ def save_token_to_env(access_token: str):
         if not updated:
             f.write(f"\nFYERS_ACCESS_TOKEN={access_token}\n")
 
-    print("💾 Access token saved to .env")
+    print("Access token saved to .env")
 
 
 # =========================
@@ -118,8 +118,8 @@ def save_token_to_env(access_token: str):
 # =========================
 if __name__ == "__main__":
     print("\n=== FYERS AUTH TOOL ===")
-    print("1️⃣ Generate Auth URL")
-    print("2️⃣ Generate Access Token")
+    print("1. Generate Auth URL")
+    print("2. Generate Access Token")
 
     choice = input("\nEnter choice (1 or 2): ").strip()
 
@@ -135,4 +135,4 @@ if __name__ == "__main__":
             save_token_to_env(access_token)
 
     else:
-        print("❌ Invalid choice")
+        print("Invalid choice")

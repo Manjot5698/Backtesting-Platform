@@ -1,19 +1,15 @@
 import os
-from dotenv import load_dotenv
 import pandas as pd
 from datetime import datetime, timedelta
-try:
-    from fyers_apiv3 import fyersModel
-except ImportError:
-    fyersModel = None
-from .base_provider import BaseDataProvider
+from dotenv import load_dotenv
+from fyers_apiv3 import fyersModel
+
+from data.providers.base_provider import BaseDataProvider
 
 
 class FyersProvider(BaseDataProvider):
 
     def __init__(self):
-        if fyersModel is None:
-            raise ImportError("fyers_apiv3 package is not installed. Please install it to use FyersProvider.")
         load_dotenv()
 
         self.client_id = os.getenv("FYERS_CLIENT_ID")
@@ -29,6 +25,9 @@ class FyersProvider(BaseDataProvider):
             log_path=""
         )
 
+    def _format_symbol(self, ticker: str) -> str:
+        return f"NSE:{ticker.upper()}-EQ"
+
     def _convert_period_to_days(self, period: str) -> int:
         mapping = {
             "1d": 1,
@@ -36,9 +35,7 @@ class FyersProvider(BaseDataProvider):
             "1mo": 30,
             "3mo": 90,
             "6mo": 180,
-            "1y": 365,
-            "2y": 730,
-            "5y": 1825
+            "1y": 365
         }
         return mapping.get(period, 365)
 
@@ -53,12 +50,9 @@ class FyersProvider(BaseDataProvider):
         }
         return mapping.get(interval, "D")
 
-    def get_price_data(
-        self,
-        ticker: str,
-        period: str = "1y",
-        interval: str = "1d"
-    ) -> pd.DataFrame:
+    def get_price_data(self, ticker: str, period: str = "1y", interval: str = "1d") -> pd.DataFrame:
+
+        symbol = self._format_symbol(ticker)
 
         days = self._convert_period_to_days(period)
         resolution = self._convert_interval(interval)
@@ -67,7 +61,7 @@ class FyersProvider(BaseDataProvider):
         start_date = end_date - timedelta(days=days)
 
         data = {
-            "symbol": ticker,
+            "symbol": symbol,
             "resolution": resolution,
             "date_format": "1",
             "range_from": start_date.strftime("%Y-%m-%d"),
@@ -75,21 +69,25 @@ class FyersProvider(BaseDataProvider):
             "cont_flag": "1"
         }
 
-        response = self.fyers.history(data)
+        response = self.fyers.history(data=data)
 
-        if "candles" not in response or not response["candles"]:
+        if response.get("s") != "ok":
+            raise ValueError(f"FYERS API Error: {response}")
+
+        candles = response.get("candles", [])
+
+        if not candles:
             raise ValueError(f"No data fetched for {ticker}")
 
         df = pd.DataFrame(
-            response["candles"],
+            candles,
             columns=["timestamp", "Open", "High", "Low", "Close", "Volume"]
         )
 
         df["Date"] = pd.to_datetime(df["timestamp"], unit="s")
 
         df = df[["Date", "Open", "High", "Low", "Close", "Volume"]]
-
-        df = df.dropna(subset=["Close"])
-        df = df.sort_values("Date").reset_index(drop=True)
+        df.sort_values("Date", inplace=True)
+        df.reset_index(drop=True, inplace=True)
 
         return df

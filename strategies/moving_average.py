@@ -35,9 +35,9 @@ class MovingAverageStrategy(BaseStrategy):
             "signal"
         ] = -1
 
-        # 🔥 Fill signals properly
+        # Fill signals properly
+        df["signal"] = df["signal"].astype('Int64')  # Use nullable integer
         df["signal"] = df["signal"].replace(0, pd.NA).ffill()
-        df["signal"] = df["signal"].fillna(0)
-        df["signal"] = df["signal"].infer_objects(copy=False).astype(int)
+        df["signal"] = df["signal"].fillna(0).astype(int)
 
         return df
