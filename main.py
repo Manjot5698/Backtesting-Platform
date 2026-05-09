@@ -1,7 +1,4 @@
-from pathlib import Path
-
 from data.providers.fyers_provider import FyersProvider
-from data.storage.data_loader import DataLoader
 from strategies.strategy_registry import STRATEGY_REGISTRY
 from engine.backtest_engine import BacktestEngine
 from analytics.performance_metrics import PerformanceMetrics
@@ -11,6 +8,8 @@ from analytics.performance_metrics import PerformanceMetrics
 # CONFIG
 # =========================
 TICKER = "RELIANCE"
+PERIOD = "5d"  # options: "1d", "5d", "1mo", "3mo", "6mo", "1y"
+INTERVAL = "5m"  # options: "1m", "5m", "15m", "30m", "1h", "1d"
 
 MODE = "moving_average"
 # options:
@@ -23,19 +22,12 @@ MODE = "moving_average"
 # LOAD DATA
 # =========================
 provider = FyersProvider()
-file_path = Path(f"data/raw/{TICKER}.csv")
 
-if file_path.exists():
-    print(f"{TICKER} - loaded from disk")
-    df = DataLoader.load_data(TICKER)
-else:
-    print(f"{TICKER} - fetching from FYERS")
-    df = provider.get_price_data(TICKER)
+print(f"{TICKER} - fetching from FYERS (period: {PERIOD}, interval: {INTERVAL})")
+df = provider.get_price_data(TICKER, period=PERIOD, interval=INTERVAL)
 
-    if df.empty:
-        raise ValueError(f"No data returned for {TICKER}")
-
-    DataLoader.save_data(df, TICKER)
+if df.empty:
+    raise ValueError(f"No data returned for {TICKER}")
 
 
 # =========================

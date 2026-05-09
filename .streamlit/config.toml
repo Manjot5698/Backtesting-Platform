@@ -7,6 +7,8 @@ font="sans serif"
 
 [client]
 showErrorDetails=false
+toolbarMode="minimal"
+showSidebarNavigation=true
 
 [logger]
 level="warning"
@@ -16,6 +18,21 @@ port = 8501
 headless = true
 maxUploadSize = 200
 enableXsrfProtection = true
+enableCORS = false
+runOnSave = true
 
 [browser]
 gatherUsageStats = false
+serverAddress = "localhost"
+
+# Production optimizations
+[client]
+# Reduce memory usage
+maxMessageSize = 200
+
+[logger]
+level = "warning"
+
+[ui]
+hideTopBar = false
+hideSidebarNav = false

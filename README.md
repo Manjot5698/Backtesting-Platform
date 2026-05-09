@@ -2,6 +2,8 @@
 
 A modern, professional stock backtesting application built with Streamlit, featuring traditional trading strategies and ML-powered signal generation.
 
+**🚀 [Deployment Guide](DEPLOYMENT.md)** | **💻 [Local Setup](#quick-start-5-minutes)**
+
 ## Features
 
 ### Trading Modes
@@ -57,6 +59,7 @@ A modern, professional stock backtesting application built with Streamlit, featu
 1. **Load data** 
    - Default ticker: RELIANCE
    - Click "Load Data"
+   - Data is fetched from FYERS API
    - Wait for success message
 
 2. **Select strategy**
@@ -184,8 +187,8 @@ Access from mobile on same network:
 
 ### Step 2: Load Data
 - Click "Load Data" button
-- Data loads from local cache or FYERS API
-- First load may take a few seconds
+- Data is fetched from FYERS API
+- May take a few seconds depending on network
 
 ### Step 3: Run Backtest
 - Click "Run Backtest" button
@@ -207,8 +210,6 @@ Backtesting-tool/
 │   └── settings.py          # Configuration settings
 ├── data/
 │   ├── providers/           # Data source providers
-│   ├── raw/                 # Raw data files
-│   ├── storage/             # Data storage/loading
 │   └── utils/               # Data utilities
 ├── engine/
 │   ├── backtest_engine.py   # Core backtesting engine
@@ -241,6 +242,20 @@ If you get import errors, reinstall requirements:
 ```bash
 pip install --upgrade -r requirements.txt
 ```
+
+## Deployment
+
+Your app is ready for production deployment on Streamlit Cloud!
+
+**[See DEPLOYMENT.md for complete guide →](DEPLOYMENT.md)**
+
+Quick steps:
+1. Push to GitHub: `git push origin main`
+2. Go to https://share.streamlit.io and deploy
+3. Add secrets in app settings > Secrets
+4. Share your live app link!
+
+For detailed instructions, troubleshooting, and FYERS setup, see [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ## Development
 

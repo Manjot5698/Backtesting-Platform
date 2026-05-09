@@ -4,12 +4,34 @@ from pathlib import Path
 import numpy as np
 
 from data.providers.fyers_provider import FyersProvider
-from data.storage.data_loader import DataLoader
 from strategies.strategy_registry import STRATEGY_REGISTRY
 from engine.backtest_engine import BacktestEngine
 from analytics.performance_metrics import PerformanceMetrics
 from ml.pipeline import MLPipeline
 from ml.features import FeatureEngineer
+from config.secrets_manager import get_secret
+
+# =========================
+# VALIDATE CREDENTIALS
+# =========================
+try:
+    client_id = get_secret("FYERS_CLIENT_ID")
+    access_token = get_secret("FYERS_ACCESS_TOKEN")
+    if not client_id or not access_token:
+        st.error(
+            "❌ Missing FYERS Credentials\n\n"
+            "**Local Development:**\n"
+            "1. Create `.env` file in project root\n"
+            "2. Add: `FYERS_CLIENT_ID`, `FYERS_SECRET_KEY`, `FYERS_REDIRECT_URI`, `FYERS_ACCESS_TOKEN`\n\n"
+            "**Streamlit Cloud:**\n"
+            "1. Go to App settings > Secrets\n"
+            "2. Add the same credentials\n"
+            "3. See `.streamlit/secrets.toml.template` for format"
+        )
+        st.stop()
+except Exception as e:
+    st.error(f"Configuration Error: {str(e)}")
+    st.stop()
 
 # Custom CSS
 st.markdown("""
@@ -205,27 +227,36 @@ else:
 
 quantity = st.sidebar.number_input("Quantity", min_value=1, value=10, step=1)
 
+# Time Period Selection
+st.sidebar.markdown('<div class="sidebar-title">Time Period</div>', unsafe_allow_html=True)
+
+period = st.sidebar.selectbox(
+    "Select Period",
+    options=["1d", "5d", "1mo", "3mo", "6mo", "1y"],
+    index=1,
+    help="Time period for historical data"
+)
+
+interval = st.sidebar.selectbox(
+    "Select Interval",
+    options=["1m", "5m", "15m", "30m", "1h", "1d"],
+    index=1,
+    help="Candle interval (bar size)"
+)
+
 # Load data
 st.sidebar.markdown('<div class="sidebar-title">Data Management</div>', unsafe_allow_html=True)
 if st.sidebar.button("Load Data", use_container_width=True):
-    file_path = Path(f"data/raw/{ticker}.csv")
-    
     try:
-        if file_path.exists():
-            st.sidebar.success(f"{ticker} - loaded from disk")
-            df = DataLoader.load_data(ticker)
-        else:
-            st.sidebar.info(f"Fetching {ticker} from FYERS...")
-            provider = FyersProvider()
-            df = provider.get_price_data(ticker)
-            
-            if df.empty:
-                st.sidebar.error(f"No data returned for {ticker}")
-                st.stop()
-            
-            DataLoader.save_data(df, ticker)
-            st.sidebar.success(f"{ticker} - saved to disk")
+        st.sidebar.info(f"Fetching {ticker} from FYERS ({period} | {interval})...")
+        provider = FyersProvider()
+        df = provider.get_price_data(ticker, period=period, interval=interval)
         
+        if df.empty:
+            st.sidebar.error(f"No data returned for {ticker}")
+            st.stop()
+        
+        st.sidebar.success(f"{ticker} - data loaded successfully ({len(df)} candles)")
         st.session_state.df = df
         st.session_state.ticker = ticker
     except Exception as e:

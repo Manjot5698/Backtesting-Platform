@@ -43,7 +43,7 @@ class YFinanceProvider(BaseDataProvider):
         # =========================
         # FORCE NUMERIC
         # =========================
-        for col in ["Open", "High", "Low", "Close", "Volume"]::
+        for col in ["Open", "High", "Low", "Close", "Volume"]:
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
         df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
