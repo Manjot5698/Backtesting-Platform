@@ -15,7 +15,7 @@ REDIRECT_URI = os.getenv("FYERS_REDIRECT_URI")
 # VALIDATION
 # =========================
 if not CLIENT_ID or not SECRET_KEY or not REDIRECT_URI:
-    raise ValueError("❌ Missing FYERS config in .env")
+    raise ValueError("Missing FYERS config in .env")
 
 # =========================
 # CREATE SESSION
@@ -48,7 +48,7 @@ session.set_token(auth_code)
 response = session.generate_token()
 
 if response.get("s") != "ok":
-    raise Exception(f"❌ Token generation failed: {response}")
+    raise Exception(f"Token generation failed: {response}")
 
-print("\n✅ ACCESS TOKEN:\n")
+print("\nACCESS TOKEN:\n")
 print(response["access_token"])

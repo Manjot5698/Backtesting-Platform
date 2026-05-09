@@ -16,7 +16,7 @@ class FyersProvider(BaseDataProvider):
         self.access_token = os.getenv("FYERS_ACCESS_TOKEN")
 
         if not self.client_id or not self.access_token:
-            raise ValueError("❌ FYERS credentials missing in .env")
+            raise ValueError("FYERS credentials missing in .env")
 
         self.fyers = fyersModel.FyersModel(
             client_id=self.client_id,
@@ -58,7 +58,7 @@ class FyersProvider(BaseDataProvider):
             "5m": "5",
             "1m": "1"
         }
-        return mapping.get(interval, "5")  # 🔥 default 5m
+        return mapping.get(interval, "5")  # default 5m
 
     # =========================
     # MAIN FETCH
@@ -66,8 +66,8 @@ class FyersProvider(BaseDataProvider):
     def get_price_data(
         self,
         ticker: str,
-        period: str = "5d",      # 🔥 shorter for live feel
-        interval: str = "5m"     # 🔥 intraday
+        period: str = "5d",      # shorter for live feel
+        interval: str = "5m"     # intraday
     ) -> pd.DataFrame:
 
         symbol = self._format_symbol(ticker)
@@ -87,7 +87,7 @@ class FyersProvider(BaseDataProvider):
             "cont_flag": "1"
         }
 
-        print(f"📡 FYERS Fetch → {symbol} | {resolution}")
+        print(f"FYERS Fetch -> {symbol} | {resolution}")
 
         response = self.fyers.history(data=payload)
 
@@ -95,13 +95,13 @@ class FyersProvider(BaseDataProvider):
         # ERROR HANDLING
         # =========================
         if response.get("s") != "ok":
-            print("❌ FYERS ERROR:", response)
+            print("FYERS ERROR:", response)
             raise ValueError(f"FYERS API Error: {response}")
 
         candles = response.get("candles", [])
 
         if not candles:
-            raise ValueError(f"❌ No data fetched for {ticker}")
+            raise ValueError(f"No data fetched for {ticker}")
 
         # =========================
         # DATAFRAME
@@ -126,8 +126,8 @@ class FyersProvider(BaseDataProvider):
 
         df = df.dropna().reset_index(drop=True)
 
-        print(f"✅ FYERS SUCCESS | Rows: {len(df)}")
-        print("📅 Last Candle:", df["Date"].iloc[-1])
-        print("💰 Last Price:", df["Close"].iloc[-1])
+        print(f"FYERS SUCCESS | Rows: {len(df)}")
+        print("Last Candle:", df["Date"].iloc[-1])
+        print("Last Price:", df["Close"].iloc[-1])
 
         return df

@@ -37,3 +37,5 @@
 {"level":"DEBUG","location":"[get_call:159] fyersModel","message":{"Status Code":200,"API":"/history"},"timestamp":"2026-04-23 09:29:45,255+0530","service":"FyersAPIRequest"}
 {"level":"DEBUG","location":"[get_call:159] fyersModel","message":{"Status Code":200,"API":"/history"},"timestamp":"2026-04-23 09:29:53,988+0530","service":"FyersAPIRequest"}
 {"level":"DEBUG","location":"[get_call:159] fyersModel","message":{"Status Code":200,"API":"/history"},"timestamp":"2026-04-23 09:49:27,189+0530","service":"FyersAPIRequest"}
+{"level":"DEBUG","location":"[get_call:159] fyersModel","message":{"Status Code":200,"API":"/history"},"timestamp":"2026-05-09 11:05:23,700+0530","service":"FyersAPIRequest"}
+{"level":"DEBUG","location":"[get_call:159] fyersModel","message":{"Status Code":200,"API":"/history"},"timestamp":"2026-05-09 11:14:02,796+0530","service":"FyersAPIRequest"}

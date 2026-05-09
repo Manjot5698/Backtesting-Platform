@@ -22,28 +22,28 @@ class LiveDataProvider:
         # =========================
         if self.fyers:
             try:
-                print("📡 Using FYERS LIVE data...")
+                print("Using FYERS LIVE data...")
                 data = self.fyers.get_price_data(symbol)
 
                 if not data.empty:
-                    print("✅ FYERS SUCCESS")
+                    print("FYERS SUCCESS")
                     return data
 
             except Exception as e:
-                print("❌ FYERS ERROR:", e)
+                print("FYERS ERROR:", e)
 
         # =========================
         # FALLBACK YFINANCE
         # =========================
         try:
-            print("📡 Using YFINANCE fallback...")
+            print("Using YFINANCE fallback...")
             data = self.yfinance.get_price_data(symbol)
 
             if data.empty:
                 raise ValueError("yfinance returned empty data")
 
-            print("✅ YFINANCE SUCCESS")
+            print("YFINANCE SUCCESS")
             return data
 
         except Exception as e:
-            raise ValueError(f"❌ Both FYERS & YFINANCE failed: {e}")
+            raise ValueError(f"Both FYERS & YFINANCE failed: {e}")
