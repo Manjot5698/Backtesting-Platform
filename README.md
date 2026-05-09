@@ -109,9 +109,26 @@ Access from mobile on same network:
 
 ## Cloud Deployment (Streamlit Cloud)
 
+**IMPORTANT:** Do NOT commit `.env` file to GitHub. It's already in `.gitignore`. Use Streamlit Secrets Manager instead.
+
+### Local Development Setup
+
+1. **Keep your `.env` file locally** (in `.gitignore`):
+   ```bash
+   FYERS_CLIENT_ID=your_client_id
+   FYERS_SECRET_KEY=your_secret_key
+   FYERS_REDIRECT_URI=http://localhost:8501
+   FYERS_ACCESS_TOKEN=your_access_token
+   ```
+
+2. **Run the app**:
+   ```bash
+   streamlit run app.py
+   ```
+
 ### Deploy to Streamlit Cloud
 
-1. **Push to GitHub**
+1. **Push to GitHub** (`.env` is automatically ignored)
    ```bash
    git add .
    git commit -m "Deploy to Streamlit Cloud"
@@ -122,18 +139,41 @@ Access from mobile on same network:
    - Visit [share.streamlit.io](https://share.streamlit.io)
    - Click "New app"
    - Connect your GitHub repo
-   - Select `Backtesting-tool` as the main repo
    - Set main file to `app.py`
    - Click "Deploy"
 
-3. **Configure Secrets**
-   - In Streamlit Cloud dashboard, go to App settings → Secrets
-   - Add your FYERS API credentials:
+3. **Configure Secrets** (CRITICAL - do this after deployment)
+   - In your app dashboard, click **Settings** → **Secrets**
+   - Add your FYERS credentials in TOML format:
    ```toml
-   [fyers]
-   API_KEY = "your_fyers_api_key"
-   ACCESS_TOKEN = "your_fyers_access_token"
+   FYERS_CLIENT_ID = "your_client_id"
+   FYERS_SECRET_KEY = "your_secret_key"
+   FYERS_REDIRECT_URI = "http://localhost:8501"
+   FYERS_ACCESS_TOKEN = "your_access_token"
    ```
+   - Click "Save" - app will reboot automatically
+
+### Security
+
+- `.env` file is in `.gitignore` - never committed to GitHub
+- App automatically detects local vs cloud environment
+- Secrets safely stored in Streamlit Cloud dashboard
+- No sensitive data exposed in code
+
+### Troubleshooting
+
+**"Missing FYERS credentials"**
+- Local: Copy `.env.example` to `.env` and fill values
+- Cloud: Check Secrets in Settings → Secrets dashboard
+- Cloud: Reboot app after changing secrets
+
+**"Invalid token"**
+- Regenerate token:
+  ```bash
+  python auth/fyers_auth.py
+  ```
+- Follow browser redirect and paste auth code
+- Update `.env` (local) or Secrets (cloud)
 
 ## How to Use
 

@@ -1,22 +1,23 @@
-import os
 import pandas as pd
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
 from fyers_apiv3 import fyersModel
 
 from data.providers.base_provider import BaseDataProvider
+from config.secrets_manager import get_secret
 
 
 class FyersProvider(BaseDataProvider):
 
     def __init__(self):
-        load_dotenv()
-
-        self.client_id = os.getenv("FYERS_CLIENT_ID")
-        self.access_token = os.getenv("FYERS_ACCESS_TOKEN")
+        self.client_id = get_secret("FYERS_CLIENT_ID")
+        self.access_token = get_secret("FYERS_ACCESS_TOKEN")
 
         if not self.client_id or not self.access_token:
-            raise ValueError("FYERS credentials missing in .env")
+            raise ValueError(
+                "FYERS credentials missing. Configure in:\n"
+                "- Local: .env file\n"
+                "- Streamlit Cloud: Settings > Secrets"
+            )
 
         self.fyers = fyersModel.FyersModel(
             client_id=self.client_id,
