@@ -1,10 +1,7 @@
-import os
-from dotenv import load_dotenv
+from config.secrets_manager import get_secret
 
-load_dotenv()
-
-FYERS_CLIENT_ID = os.getenv("FYERS_CLIENT_ID")
-FYERS_SECRET_KEY = os.getenv("FYERS_SECRET_KEY")
-FYERS_ACCESS_TOKEN = os.getenv("FYERS_ACCESS_TOKEN")
+FYERS_CLIENT_ID = get_secret("FYERS_CLIENT_ID")
+FYERS_SECRET_KEY = get_secret("FYERS_SECRET_KEY")
+FYERS_ACCESS_TOKEN = get_secret("FYERS_ACCESS_TOKEN")
 
 DATA_DIR = "data/raw"

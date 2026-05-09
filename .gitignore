@@ -38,6 +38,7 @@ htmlcov/
 .env
 .env.local
 fyers_token.py
+.streamlit/secrets.toml
 
 # Logs
 *.log

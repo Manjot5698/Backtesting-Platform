@@ -1,21 +1,22 @@
 from fyers_apiv3 import fyersModel
-from dotenv import load_dotenv
-import os
+from config.secrets_manager import get_secret
 
 # =========================
-# LOAD ENV
+# LOAD SECRETS
 # =========================
-load_dotenv()
-
-CLIENT_ID = os.getenv("FYERS_CLIENT_ID")
-SECRET_KEY = os.getenv("FYERS_SECRET_KEY")
-REDIRECT_URI = os.getenv("FYERS_REDIRECT_URI")
+CLIENT_ID = get_secret("FYERS_CLIENT_ID")
+SECRET_KEY = get_secret("FYERS_SECRET_KEY")
+REDIRECT_URI = get_secret("FYERS_REDIRECT_URI")
 
 # =========================
 # VALIDATION
 # =========================
 if not CLIENT_ID or not SECRET_KEY or not REDIRECT_URI:
-    raise ValueError("Missing FYERS config in .env")
+    raise ValueError(
+        "Missing FYERS credentials. Configure in:\n"
+        "- Local: .env file\n"
+        "- Streamlit Cloud: Settings > Secrets"
+    )
 
 # =========================
 # CREATE SESSION
